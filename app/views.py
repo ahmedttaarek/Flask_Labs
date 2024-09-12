@@ -4,42 +4,45 @@ from app import app, db
 from app.models import User, Book
 import io
 
-@app.route("/register", methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        is_admin = 'is_admin' in request.form
 
         if User.query.filter_by(username=username).first():
-            flash('Username already exists. Try a different one.', 'danger')
+            flash('Username already exists. Try a different one.')
             return redirect(url_for('register'))
 
-        new_user = User(username=username, password=generate_password_hash(password), is_admin=is_admin)
+        # Create a new user (non-admin by default)
+        new_user = User(username=username, password=generate_password_hash(password), is_admin=False)
         db.session.add(new_user)
         db.session.commit()
-
-        flash('Registered successfully. Please log in.', 'success')
+        flash('Registration successful! You can now log in.')
         return redirect(url_for('login'))
 
     return render_template('register.html')
 
-@app.route("/login", methods=['GET', 'POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        
         user = User.query.filter_by(username=username).first()
-
+        
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
+            session['username'] = user.username
             session['is_admin'] = user.is_admin
-            flash('Logged in successfully.', 'success')
+            flash('Login successful!')
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid username or password.', 'danger')
-    
+            flash('Invalid username or password. Please try again.')
+
     return render_template('login.html')
+
 
 @app.route("/dashboard")
 def dashboard():
@@ -97,6 +100,10 @@ def admin_dashboard():
 
     users = User.query.all()
     books = Book.query.all()
+
+    print("Users:", users)
+    print("Books:", books)
+
     return render_template('admindashboard.html', users=users, books=books)
 
 @app.route("/admin/edit_user/<int:user_id>", methods=['GET', 'POST'])
@@ -140,7 +147,10 @@ def edit_book(book_id):
 
     if request.method == 'POST':
         title = request.form['title']
+        image = request.files.get('image')
         book.title = title
+        if image and image.filename:
+            book.image = image.read()
         db.session.commit()
         flash('Book details updated successfully!', 'success')
         return redirect(url_for('admin_dashboard'))
