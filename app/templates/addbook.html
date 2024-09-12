@@ -1,42 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Book</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .add-book-container {
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .add-book-header {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="add-book-container">
-        <div class="add-book-header">
-            <h1 class="text-center">Add New Book</h1>
-        </div>
-        <form method="POST" action="{{ url_for('add_book') }}" enctype="multipart/form-data">
+{% extends 'base.html' %}
+
+{% block title %}Add Book{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">Add a New Book</h1>
+        <form method="POST" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="title">Title</label>
+                <label for="title">Book Title</label>
                 <input type="text" class="form-control" id="title" name="title" required>
             </div>
             <div class="form-group">
-                <label for="image">Image (optional)</label>
-                <input type="file" class="form-control" id="image" name="image">
+                <label for="image">Book Image</label>
+                <input type="file" class="form-control-file" id="image" name="image">
             </div>
             <button type="submit" class="btn btn-primary btn-block">Add Book</button>
-            <p class="text-center mt-3">
-                <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
-            </p>
         </form>
     </div>
-</body>
-</html>
+{% endblock %}

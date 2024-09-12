@@ -1,44 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .card {
-            margin: 15px;
-            border-radius: 10px;
-        }
-        .card img {
-            border-radius: 10px 10px 0 0;
-        }
-        .dashboard-header {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="dashboard-header">
-            <h1 class="text-center">Welcome, {{ user.username }}</h1>
-        </div>
+{% extends 'base.html' %}
 
-        <div class="row">
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">Welcome, {{ user.username }}!</h1>
+        <h3>Your Books</h3>
+        <ul>
             {% for book in books %}
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="{{ url_for('book_image', book_id=book.id) }}" class="card-img-top" alt="{{ book.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ book.title }}</h5>
-                            <a href="{{ url_for('remove_book', book_id=book.id) }}" class="btn btn-danger">Remove</a>
-                        </div>
-                    </div>
-                </div>
+                <li>{{ book.title }} <a href="{{ url_for('remove_book', book_id=book.id) }}" class="btn btn-danger btn-sm">Remove</a></li>
             {% endfor %}
-        </div>
-        
-        <a href="{{ url_for('add_book') }}" class="btn btn-primary mt-3">Add New Book</a>
+        </ul>
+        <a href="{{ url_for('add_book') }}" class="btn btn-primary">Add New Book</a>
     </div>
-</body>
-</html>
+{% endblock %}

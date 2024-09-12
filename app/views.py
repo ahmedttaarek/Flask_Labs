@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, flash, request, session, send_file
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from app import app, db
 from app.models import User, Book
 import io
@@ -15,7 +15,7 @@ def register():
             flash('Username already exists. Try a different one.', 'danger')
             return redirect(url_for('register'))
 
-        new_user = User(username=username, password=password, is_admin=is_admin)
+        new_user = User(username=username, password=generate_password_hash(password), is_admin=is_admin)
         db.session.add(new_user)
         db.session.commit()
 
@@ -99,7 +99,7 @@ def logout():
     session.pop('user_id', None)
     session.pop('is_admin', None)
     flash('You have been logged out.', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 @app.route("/book_image/<int:book_id>")
 def book_image(book_id):
