@@ -1,21 +1,65 @@
-{% extends 'base.html' %}
-
-{% block title %}Admin Dashboard{% endblock %}
-
-{% block content %}
-    <div class="container">
+<!-- Admindashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .admin-container {
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="admin-container">
         <h1 class="text-center">Admin Dashboard</h1>
-        <h3>Users</h3>
-        <ul>
-            {% for user in users %}
-                <li>{{ user.username }}</li>
-            {% endfor %}
-        </ul>
-        <h3>Books</h3>
-        <ul>
-            {% for book in books %}
-                <li>{{ book.title }}</li>
-            {% endfor %}
-        </ul>
+        <h2>Users</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-primary">Edit</a>
+                        <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h2>Books</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.id }}</td>
+                    <td>{{ book.title }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_book', book_id=book.id) }}" class="btn btn-primary">Edit</a>
+                        <a href="{{ url_for('delete_book', book_id=book.id) }}" class="btn btn-danger">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-{% endblock %}
+</body>
+</html>

@@ -38,6 +38,7 @@ def login():
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid username or password.', 'danger')
+    
     return render_template('login.html')
 
 @app.route("/dashboard")
@@ -59,7 +60,11 @@ def add_book():
     if request.method == 'POST':
         title = request.form['title']
         image = request.files.get('image')
-        image_data = image.read() if image else None
+        image_data = image.read() if image and image.filename else None
+
+        if not title:
+            flash('Title is required.', 'danger')
+            return redirect(url_for('add_book'))
 
         new_book = Book(title=title, image=image_data, user_id=session['user_id'])
         db.session.add(new_book)
@@ -94,6 +99,66 @@ def admin_dashboard():
     books = Book.query.all()
     return render_template('admindashboard.html', users=users, books=books)
 
+@app.route("/admin/edit_user/<int:user_id>", methods=['GET', 'POST'])
+def edit_user(user_id):
+    if 'is_admin' not in session or not session['is_admin']:
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.get_or_404(user_id)
+
+    if request.method == 'POST':
+        username = request.form['username']
+        is_admin = 'is_admin' in request.form
+        user.username = username
+        user.is_admin = is_admin
+        db.session.commit()
+        flash('User details updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template('edit_user.html', user=user)
+
+@app.route("/admin/delete_user/<int:user_id>")
+def delete_user(user_id):
+    if 'is_admin' not in session or not session['is_admin']:
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route("/admin/edit_book/<int:book_id>", methods=['GET', 'POST'])
+def edit_book(book_id):
+    if 'is_admin' not in session or not session['is_admin']:
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('login'))
+
+    book = Book.query.get_or_404(book_id)
+
+    if request.method == 'POST':
+        title = request.form['title']
+        book.title = title
+        db.session.commit()
+        flash('Book details updated successfully!', 'success')
+        return redirect(url_for('admin_dashboard'))
+
+    return render_template('edit_book.html', book=book)
+
+@app.route("/admin/delete_book/<int:book_id>")
+def delete_book(book_id):
+    if 'is_admin' not in session or not session['is_admin']:
+        flash('Access denied. Admins only.', 'danger')
+        return redirect(url_for('login'))
+
+    book = Book.query.get_or_404(book_id)
+    db.session.delete(book)
+    db.session.commit()
+    flash('Book deleted successfully!', 'success')
+    return redirect(url_for('admin_dashboard'))
+
 @app.route("/logout")
 def logout():
     session.pop('user_id', None)
@@ -106,8 +171,7 @@ def book_image(book_id):
     book = Book.query.get_or_404(book_id)
     if book.image:
         return send_file(io.BytesIO(book.image), mimetype='image/jpeg')
-    else:
-        return '', 404
+    return '', 404
 
 @app.route("/")
 def home():
