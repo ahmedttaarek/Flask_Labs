@@ -3,7 +3,6 @@ from werkzeug.security import check_password_hash
 from app import app, db
 from app.models import User, Book
 import io
-from sqlalchemy import inspect
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -51,22 +50,24 @@ def dashboard():
     books = user.books if user else []
     return render_template('dashboard.html', user=user, books=books)
 
-@app.route("/add_book", methods=['POST'])
+@app.route("/add_book", methods=['GET', 'POST'])
 def add_book():
     if 'user_id' not in session:
         flash('Please log in to add a book.', 'danger')
         return redirect(url_for('login'))
 
-    title = request.form['title']
-    user_id = session['user_id']
-    image = request.files.get('image')
-    image_data = image.read() if image else None
+    if request.method == 'POST':
+        title = request.form['title']
+        image = request.files.get('image')
+        image_data = image.read() if image else None
 
-    new_book = Book(title=title, image=image_data, user_id=user_id)
-    db.session.add(new_book)
-    db.session.commit()
-    flash('Book added successfully!', 'success')
-    return redirect(url_for('dashboard'))
+        new_book = Book(title=title, image=image_data, user_id=session['user_id'])
+        db.session.add(new_book)
+        db.session.commit()
+        flash('Book added successfully!', 'success')
+        return redirect(url_for('dashboard'))
+
+    return render_template('addbook.html')
 
 @app.route("/remove_book/<int:book_id>")
 def remove_book(book_id):
@@ -75,7 +76,7 @@ def remove_book(book_id):
         return redirect(url_for('login'))
 
     book = Book.query.get(book_id)
-    if book and book.owner.id == session['user_id']:
+    if book and book.user_id == session['user_id']:
         db.session.delete(book)
         db.session.commit()
         flash('Book removed successfully!', 'success')
@@ -110,8 +111,4 @@ def book_image(book_id):
 
 @app.route("/")
 def home():
-    # Check if tables exist using the inspect function
-    inspector = inspect(db.engine)
-    if not inspector.has_table('user') or not inspector.has_table('book'):
-        db.create_all()
-    return redirect(url_for('register'))
+    return render_template('home.html')

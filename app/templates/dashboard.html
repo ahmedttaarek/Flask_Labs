@@ -5,61 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin: 15px;
+            border-radius: 10px;
+        }
+        .card img {
+            border-radius: 10px 10px 0 0;
+        }
+        .dashboard-header {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="{{ url_for('home') }}">Home</a>
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-            </li>
-        </ul>
-    </nav>
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="text-center">Welcome, {{ user.username }}</h1>
+        </div>
 
-    <div class="container mt-4">
-        <h1>Welcome, {{ user.username }}</h1>
-
-        <h2>Your Books</h2>
-        <form action="{{ url_for('add_book') }}" method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="title">Book Title</label>
-                <input type="text" class="form-control" id="title" name="title" required>
-            </div>
-            <div class="form-group">
-                <label for="image">Book Image</label>
-                <input type="file" class="form-control-file" id="image" name="image">
-            </div>
-            <button type="submit" class="btn btn-primary">Add Book</button>
-        </form>
-
-        <table class="table mt-4">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for book in books %}
-                <tr>
-                    <td>{{ book.id }}</td>
-                    <td>{{ book.title }}</td>
-                    <td>
-                        <a href="{{ url_for('book_image', book_id=book.id) }}" target="_blank" class="btn btn-info btn-sm">View Image</a>
-                        <a href="{{ url_for('remove_book', book_id=book.id) }}" class="btn btn-danger btn-sm">Remove</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="row">
+            {% for book in books %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="{{ url_for('book_image', book_id=book.id) }}" class="card-img-top" alt="{{ book.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <a href="{{ url_for('remove_book', book_id=book.id) }}" class="btn btn-danger">Remove</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <a href="{{ url_for('add_book') }}" class="btn btn-primary mt-3">Add New Book</a>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
