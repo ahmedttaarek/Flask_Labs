@@ -3,6 +3,7 @@ from werkzeug.security import check_password_hash
 from app import app, db
 from app.models import User, Book
 import io
+from sqlalchemy import inspect
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -109,5 +110,8 @@ def book_image(book_id):
 
 @app.route("/")
 def home():
-    db.create_all()
+    # Check if tables exist using the inspect function
+    inspector = inspect(db.engine)
+    if not inspector.has_table('user') or not inspector.has_table('book'):
+        db.create_all()
     return redirect(url_for('register'))
