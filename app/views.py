@@ -65,11 +65,15 @@ def dashboard():
     if 'user_id' not in session:
         flash('You need to log in first.', 'warning')
         return redirect(url_for('login'))
-    
+
     # Retrieve the user from the database using the session user_id
     user = User.query.get(session['user_id'])
     
-    return render_template('dashboard.html', user=user)
+    # Retrieve the books associated with the user
+    books = Book.query.filter_by(user_id=user.id).all()
+
+    return render_template('dashboard.html', user=user, books=books)
+
 
 
 @app.route("/add_book", methods=['GET', 'POST'])
@@ -79,14 +83,19 @@ def add_book():
         return redirect(url_for('login'))
 
     if request.method == 'POST':
-        title = request.form['title']
+        title = request.form.get('title')
         image = request.files.get('image')
-        image_data = image.read() if image and image.filename else None
-
+        
         if not title:
             flash('Title is required.', 'danger')
             return redirect(url_for('add_book'))
 
+        # Handle image file
+        image_data = None
+        if image and image.filename:
+            image_data = image.read()
+
+        # Create new book and add to database
         new_book = Book(title=title, image=image_data, user_id=session['user_id'])
         db.session.add(new_book)
         db.session.commit()
@@ -94,6 +103,7 @@ def add_book():
         return redirect(url_for('dashboard'))
 
     return render_template('addbook.html')
+
 
 @app.route("/remove_book/<int:book_id>")
 def remove_book(book_id):
