@@ -5,7 +5,8 @@
 {% block content %}
 <div class="container">
     <h1 class="text-center">Login</h1>
-    <form method="POST">
+    <!-- Make sure to explicitly set the form method and action -->
+    <form method="POST" action="{{ url_for('login') }}">
         <div class="form-group">
             <label for="username">Username</label>
             <input type="text" class="form-control" id="username" name="username" required>

@@ -1,5 +1,5 @@
 from app import db
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,6 +12,9 @@ class User(db.Model):
         self.username = username
         self.password = generate_password_hash(password)
         self.is_admin = is_admin
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
 
 
 class Book(db.Model):
